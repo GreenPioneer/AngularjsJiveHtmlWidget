@@ -1,0 +1,74 @@
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.js"></script>  
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular-animate.js"></script>  
+<!-- <script src="https://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.13.2.js"></script> -->  
+<link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.css">  
+<script src='/resources/scripts/jquery/jquery.js'></script>  
+<body>  
+<div class="container-fluid" ng-app="myApp" ng-controller="ControllerJWH as vm">  
+    <div class="page-header">  
+        <h1>{{vm.jiveUser.displayName}} Welcome to Jive & AngularJS</h1>  
+        <p class="lead">Small Demo was made by Jason Humphrey</p>  
+        <div class="alert alert-danger" role="alert">  
+            <strong>Warning!</strong>  
+            <p>AngularJS will make your life easier</p>  
+        </div>  
+    </div>  
+</div>  
+<script>  
+(function() {  
+    'use strict';  
+  
+  
+    angular  
+        .module('myApp', ['ngAnimate'])  
+        .controller('ControllerJWH', ControllerJWH)  
+        .config(config);  
+         
+    config.$inject = ['$httpProvider'];  
+    ControllerJWH.$inject = ['$http'];  
+  
+  
+    /* @ngInject */  
+    function ControllerJWH($http) {  
+        var vm = this;  
+        vm.title = 'ControllerJWH';  
+  
+  
+        activate();  
+  
+  
+        ////////////////  
+  
+  
+        function activate() {  
+            $http.get('https://JIVEURLHERE.com/api/core/v3/people/@me')  
+                .then(function(result) {  
+                    vm.jiveUser = result.data;  
+                    console.log(result);  
+                }, function(err) {  
+                    console.log(err);  
+                });  
+  
+  
+        }  
+    }  
+    function config($httpProvider) {  
+        $httpProvider.interceptors.push(function() {  
+            return {  
+                'request': function(config) {  
+                    config.transformResponse.unshift(function(a) {  
+                        var split = a.split("\n");  
+                        if (a[0] === '{') {  
+                            return a;  
+                        } else {  
+                            return a.split("\n").slice(1).join("\n");  
+                        }  
+                    });  
+                    return config;  
+                }  
+            };  
+        });  
+    }  
+})();  
+</script>  
+</body> 
