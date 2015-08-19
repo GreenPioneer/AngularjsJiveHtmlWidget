@@ -1,0 +1,81 @@
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.js"></script>  
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular-animate.js"></script>  
+<script src="https://code.angularjs.org/1.4.3/angular-mocks.js"></script>
+<link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.css"> 
+<script>  
+(function () {
+    'use strict';
+    angular.module('myApp', [
+        'ngAnimate',
+        'ngMockE2E'])
+        .controller('ControllerJWH', ControllerJWH)
+        .config(config);
+
+    config.$inject = ['$httpProvider'];
+    ControllerJWH.$inject = ['$http', '$httpBackend'];
+
+
+    /* @ngInject */
+    function ControllerJWH($http, $httpBackend) {
+        var vm = this;
+        vm.title = 'ControllerJWH';
+
+
+        activate();
+
+
+        ////////////////  
+
+
+        function activate() {
+            var responseJive = "throw 'allowIllegalResourceCall.'; \n" + ' {"name":"Jason"}';
+            $httpBackend.whenGET('/v3/people/@me').respond(function (method, url, data) {
+                console.log("jives");
+                return [200, responseJive, {}];
+            });
+            //https://JIVEURLHERE.com/api/core/v3/people/@me
+            $http.get('/v3/people/@me')
+                .then(function (result) {
+                vm.jiveUser = result.data.name;
+                console.log(result);
+            }, function (err) {
+                console.log(err);
+            });
+
+
+        }
+    }
+
+    function config($httpProvider) {
+        $httpProvider.interceptors.push(function () {
+            return {
+                'request': function (config) {
+                    config.transformResponse.unshift(function (a) {
+                        console.log(a)
+                        var split = a.split("\n");
+
+                        if (a[0] === '{') {
+                            return a;
+                        } else {
+                            return a.split("\n").slice(1).join("\n");
+                        }
+                    });
+                    return config;
+                }
+            };
+        });
+    }
+})();
+</script>  
+<body>  
+<div class="container-fluid" ng-app="myApp" ng-controller="ControllerJWH as vm">  
+    <div class="page-header">  
+        <h1>{{vm.jiveUser.displayName}} Welcome to Jive & AngularJS</h1>  
+        <p class="lead">Small Demo was made by Jason Humphrey</p>  
+        <div class="alert alert-danger" role="alert">  
+            <strong>Warning!</strong>  
+            <p>AngularJS will make your life easier</p>  
+        </div>  
+    </div>  
+</div>
+</body> 
